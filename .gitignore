@@ -1,0 +1,5 @@
+# ignore golangd ide files
+.idea/*
+
+# ignore go pkgs dir
+pkg/ 
