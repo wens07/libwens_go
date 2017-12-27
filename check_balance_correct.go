@@ -1,3 +1,9 @@
+/**
+ * Author: wengqiang (email: wens.wq@gmail.com  site: qiangweng.site)
+ *
+ * Copyright © 2015--2017 . All rights reserved.
+ */
+
 package main
 
 import (
@@ -8,7 +14,7 @@ import (
 
 func main() {
 
-	balance := eth_lib.ETH_getBalance_by_block("0xfd5edcd98d3d009915e0f203610e5dd747e6d005", 4730666)
+	balance := eth_lib.ETH_getBalance_by_block("0x80e29acb842498fe6591f020bd82766dce619d43", 4797776)
 	fmt.Println(balance)
 	fmt.Println(balance[:len(balance)-18])
 

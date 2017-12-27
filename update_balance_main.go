@@ -1,3 +1,9 @@
+/**
+ * Author: wengqiang (email: wens.wq@gmail.com  site: qiangweng.site)
+ *
+ * Copyright © 2015--2017 . All rights reserved.
+ */
+
 package main
 
 import (

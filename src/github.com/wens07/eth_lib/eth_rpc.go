@@ -1,3 +1,9 @@
+/**
+ * Author: wengqiang (email: wens.wq@gmail.com  site: qiangweng.site)
+ *
+ * Copyright © 2015--2017 . All rights reserved.
+ */
+
 package eth_lib
 
 import (
@@ -12,11 +18,11 @@ import (
 	"github.com/parnurzeal/gorequest"
 )
 
-//const api_url string = "http://192.168.1.124:8588"
+//const api_url string = "http://192.168.1.122:8588"
 
 const api_url string = "http://192.168.1.178:8546"
 
-func rpc_call(args ...string) *simplejson.Json {
+func Rpc_call(args ...string) *simplejson.Json {
 
 	id := "1"
 	method := args[0]
@@ -55,17 +61,17 @@ func Hexstr2int(str string) uint64 {
 }
 
 func ETH_blockNumber() string {
-	res := rpc_call("eth_blockNumber").Get("result").MustString()
+	res := Rpc_call("eth_blockNumber").Get("result").MustString()
 	return res
 }
 
 func WEB3_clientVersion() string {
-	res := rpc_call("web3_clientVersion").Get("result").MustString()
+	res := Rpc_call("web3_clientVersion").Get("result").MustString()
 	return res
 }
 
 func NET_peerCount() string {
-	res := rpc_call("net_peerCount").Get("result").MustString()
+	res := Rpc_call("net_peerCount").Get("result").MustString()
 	return res
 
 }
@@ -77,7 +83,7 @@ func ETH_getTrxHashsByBlockNumber_debug(num uint64) {
 	callArgs := `["` + hexstr + `", false ]`
 
 	//res := rpc_call("eth_getBlockByNumber", callArgs).Get("result").MustMap()["transactions"]
-	res := fmt.Sprintf("%s", rpc_call("eth_getBlockByNumber", callArgs).Get("result").MustMap()["transactions"])
+	res := fmt.Sprintf("%s", Rpc_call("eth_getBlockByNumber", callArgs).Get("result").MustMap()["transactions"])
 
 	str_arr := strings.Split(res[1:len(res)-1], " ")
 	for _, v := range str_arr {
@@ -95,7 +101,7 @@ func ETH_getTrxHashsByBlockNumber(num uint64) []string {
 
 	callArgs := `["` + hexstr + `", false ]`
 
-	res := fmt.Sprintf("%s", rpc_call("eth_getBlockByNumber", callArgs).Get("result").MustMap()["transactions"])
+	res := fmt.Sprintf("%s", Rpc_call("eth_getBlockByNumber", callArgs).Get("result").MustMap()["transactions"])
 
 	str_arr := strings.Split(res[1:len(res)-1], " ")
 
@@ -106,7 +112,8 @@ func ETH_getTransactionByHash(trxhash string) (string, string) {
 
 	callArgs := `["` + trxhash + `"]`
 
-	res := rpc_call("eth_getTransactionByHash", callArgs).Get("result")
+	res := Rpc_call("eth_getTransactionByHash", callArgs).Get("result")
+	fmt.Println(res)
 
 	res_from := res.Get("from").MustString()
 	res_to := res.Get("to").MustString()
@@ -121,7 +128,7 @@ func ETH_getBalance(addr string) string {
 
 	callArgs := `["` + addr + `", "latest" ]`
 
-	res := rpc_call("eth_getBalance", callArgs).Get("result").MustString()
+	res := Rpc_call("eth_getBalance", callArgs).Get("result").MustString()
 
 	balance, err := hexutil.DecodeBig(res)
 
@@ -161,12 +168,13 @@ func ETH_check_transaction_successful(trxhash string) bool {
 
 	callArgs := `["` + trxhash + `"]`
 
-	res := rpc_call("eth_getTransactionByHash", callArgs).Get("result").Get("blockNumber").MustInt64()
+	res := Rpc_call("eth_getTransactionReceipt", callArgs).Get("result").Get("status").MustString()
 
 	fmt.Println(res)
-	fmt.Println(reflect.TypeOf(res))
+	success := Hexstr2int(res)
+	//fmt.Println(reflect.TypeOf(res))
 
-	if res == 0 {
+	if success == 0 {
 		return false
 	}
 
@@ -179,7 +187,7 @@ func ETH_estimateGas(sender_addr string, recieve_addr string, data string) uint6
 	callArgs := `[{` + `"from": ` + `"` + sender_addr + `", ` + `"to": ` + `"` + recieve_addr + `", `
 	callArgs += `"data": ` + `"` + data + `"` + "}]"
 
-	res := rpc_call("eth_estimateGas", callArgs).Get("result").MustString()
+	res := Rpc_call("eth_estimateGas", callArgs).Get("result").MustString()
 
 	return Hexstr2int(res)
 
@@ -187,7 +195,7 @@ func ETH_estimateGas(sender_addr string, recieve_addr string, data string) uint6
 
 func ETH_pendingTransactions() int {
 
-	res := rpc_call("eth_pendingTransactions").Get("result").MustArray()
+	res := Rpc_call("eth_pendingTransactions").Get("result").MustArray()
 
 	//fmt.Println(reflect.TypeOf(res))
 	//fmt.Println(len(res))

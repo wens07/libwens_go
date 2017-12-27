@@ -1,63 +1,88 @@
+/**
+ * Author: wengqiang (email: wens.wq@gmail.com  site: qiangweng.site)
+ *
+ * Copyright © 2015--2017 . All rights reserved.
+ */
+
 package main
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/wens07/eth_lib"
 )
 
-func check_trx_whether_success(num uint64) {
+func check_trx_whether_success(num uint64) int {
 
 	mysql_conn_str_tmp := "wq:123456@tcp(192.168.1.123:3306)/ethAddrBalance?charset=utf8"
 	db := eth_lib.Connect_db(mysql_conn_str_tmp)
 	defer db.Close()
 
-	select_str := "select trx_id from air_drop where `check` is null limit " + fmt.Sprintf("%d", num)
+	select_str := "select addr, trx_id from air_drop_check where trx_id is not null and `check` is null limit " + fmt.Sprintf("%d", num)
 
 	fmt.Println(select_str)
 
 	rows, err := db.Query(select_str)
 	eth_lib.CheckErr(err)
 
-	var trx_id string
+	var addr, trx_id string
 	var index int = 0
 
 	for rows.Next() {
 		index++
 
-		if err := rows.Scan(&trx_id); err != nil {
+		if err := rows.Scan(&addr, &trx_id); err != nil {
 			eth_lib.CheckErr(err)
 		}
 
-		fmt.Println(trx_id)
+		fmt.Println(addr, "\t", trx_id)
+		successful := eth_lib.ETH_check_transaction_successful(trx_id)
+		var check, update_str string
 
-		eth_lib.ETH_getTransactionByHash(trx_id)
+		if successful {
 
-		//check := "1"
-		//update_str := "update addr_balance set `check` = " + `"` + check + `"` + " where addr = " + `"` + addr + `"`
-		//fmt.Println(update_str)
-		//
-		//_, err := db.Exec(update_str)
-		//eth_lib.CheckErr(err)
+			check = "1"
+			update_str = "update air_drop_check set `check` = " + `"` + check + `"` + " where addr = " + `"` + addr + `"`
+			fmt.Println(update_str)
+
+		} else {
+
+			check = "0"
+			update_str = "update air_drop_check set `check` = " + `"` + check + `"` + " where addr = " + `"` + addr + `"`
+			fmt.Println(update_str)
+
+		}
+
+		_, err := db.Exec(update_str)
+		eth_lib.CheckErr(err)
 
 	}
+
+	return index
 
 }
 
 func main() {
 
-	trxhash := "0xc35a313fd7c39d9615c1ff66ace3e6d952f3b000107520cc15866ee13248e2c9"
+	//from, to := eth_lib.ETH_getTransactionByHash("0x1d03089418abf4dab380631be855da81053a489111240c31fadb171f3a77318c")
+	//fmt.Println(from, to)
+	//
+	//res := eth_lib.ETH_check_transaction_successful("0x1d03089418abf4dab380631be855da81053a489111240c31fadb171f3a77318b")
+	//fmt.Println(res)
 
-	callArgs := `["` + trxhash + `"]`
+	total := 0
 
-	res := eth_lib.Remote_rpc_call("eth_getTransactionByHash", callArgs).Get("result").Get("blockNumber").MustInt64()
+	for {
 
-	fmt.Println(res)
-	fmt.Println(reflect.TypeOf(res))
+		fmt.Println("total num: ", total)
 
-	if res == 0 {
-		fmt.Println("block number is nil!")
+		resnum := check_trx_whether_success(10000)
+		total += resnum
+
+		if resnum < 10000 {
+			break
+		}
+
 	}
 
 }

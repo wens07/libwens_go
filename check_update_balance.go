@@ -1,3 +1,9 @@
+/**
+ * Author: wengqiang (email: wens.wq@gmail.com  site: qiangweng.site)
+ *
+ * Copyright © 2015--2017 . All rights reserved.
+ */
+
 package main
 
 import (
@@ -69,7 +75,7 @@ func check_address_whether_update(num uint64) int {
 func main() {
 
 	for {
-		numchecked := check_address_whether_update(10000)
+		numchecked := check_address_whether_update(1000)
 
 		if numchecked == 0 {
 			break
