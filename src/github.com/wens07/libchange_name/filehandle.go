@@ -30,6 +30,7 @@ func (fh *FileHandle) FileReplace(files []string, rps map[string]string) {
 			fmt.Println(file)
 			continue
 		}
+
 		readfile, rerr := os.OpenFile(file, os.O_RDWR, 0666)
 		writefile, werr := os.OpenFile(file+"_temp", os.O_CREATE|os.O_RDWR, 0666)
 		if rerr != nil || werr != nil {
@@ -147,7 +148,7 @@ func (fh *FileHandle) PathClear(files []string, rps map[string]string) {
 		for old, _ := range rps {
 			if strings.Contains(dirstr, old) {
 				index = strings.Index(file, old)
-				dirstr = file[0 : index + len(old)]
+				dirstr = file[0 : index+len(old)]
 
 				//fmt.Println(dirstr)
 				err := os.RemoveAll(dirstr)

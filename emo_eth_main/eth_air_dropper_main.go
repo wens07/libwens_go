@@ -4,13 +4,12 @@
  * Copyright © 2015--2017 . All rights reserved.
  */
 
-package main
+package emo_eth_main
 
 import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -77,7 +76,7 @@ func airdrop_eth_getBalance(addr string, blocknum uint64) string {
 func airdrop_eth_sendTransaction(sender_addr string, contract_addr string, gas_param uint64, data string) string {
 
 	gas := eth_lib.Int2hexstr(gas_param)
-	gasPrice := eth_lib.Int2hexstr(26000000000)
+	gasPrice := eth_lib.Int2hexstr(21000000000)
 
 	callArgs := `[{` + `"from": ` + `"` + sender_addr + `", ` + `"to": ` + `"` + contract_addr + `", ` + `"gas": ` + `"` + gas + `", `
 	callArgs += `"gasPrice": ` + `"` + gasPrice + `", ` + `"data": ` + `"` + data + `"` + "}]"
@@ -164,8 +163,10 @@ func airdrop_balance(offset uint64) int {
 	db := eth_lib.Connect_db(mysql_conn_str_tmp)
 	defer db.Close()
 
-	select_str := "select addr, balance from air_drop where trx_id is null ORDER BY CONVERT(balance, DECIMAL) DESC limit " + fmt.Sprintf("%d", offset)
+	//select_str := "select addr, balance from air_drop where trx_id is null ORDER BY CONVERT(balance, DECIMAL) DESC limit " + fmt.Sprintf("%d", offset)
 	//select_str := "select addr, balance from air_drop where trx_id is null ORDER BY CONVERT(balance, DECIMAL) ASC limit " + fmt.Sprintf("%d", offset)
+	trx_id_str := "0xbc3a00371cb8d351896a814cf0f0abf1ec3b3e173a165c99b74a3d1fd85ec4ef"
+	select_str := "select addr, balance from one_transaction_resend where trx_id = " + `"` + trx_id_str + `"` + " limit " + fmt.Sprintf("%d", offset)
 
 	fmt.Println(select_str)
 
@@ -235,7 +236,7 @@ func airdrop_balance(offset uint64) int {
 
 		for _, v := range param_addr_arr {
 
-			update_str := "update air_drop set trx_id = " + `"` + trxid + `"` + " where addr = " + `"` + v + `"`
+			update_str := "update one_transaction_resend set trx_id = " + `"` + trxid + `"` + " where addr = " + `"` + v + `"`
 			//fmt.Println(update_str)
 
 			_, err := db.Exec(update_str)
@@ -346,32 +347,32 @@ func main() {
 	//}
 	//
 	////fmt.Println(test_airdrop(3))
-	////fmt.Println(airdrop_balance(100))
+	fmt.Println(airdrop_balance(50))
 	//fmt.Println(time.Now())
 
-	total := 0
-
-	for {
-
-		time.Sleep(5 * time.Second)
-		if total >= 758 {
-			break
-		}
-
-		pending_trx_num := eth_lib.ETH_pendingTransactions()
-
-		fmt.Println("current transaction num ", total)
-
-		if pending_trx_num < 1 {
-
-			res := airdrop_balance(100)
-			fmt.Println(res)
-			total++
-
-			if res < 100 {
-				break
-			}
-		}
-	}
+	//total := 0
+	//
+	//for {
+	//
+	//	time.Sleep(5 * time.Second)
+	//	if total >= 758 {
+	//		break
+	//	}
+	//
+	//	pending_trx_num := eth_lib.ETH_pendingTransactions()
+	//
+	//	fmt.Println("current transaction num ", total)
+	//
+	//	if pending_trx_num < 1 {
+	//
+	//		res := airdrop_balance(100)
+	//		fmt.Println(res)
+	//		total++
+	//
+	//		if res < 100 {
+	//			break
+	//		}
+	//	}
+	//}
 
 }

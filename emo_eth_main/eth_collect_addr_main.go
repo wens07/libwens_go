@@ -4,7 +4,7 @@
  * Copyright © 2015--2017 . All rights reserved.
  */
 
-package main
+package emo_eth_main
 
 import "github.com/wens07/eth_lib"
 

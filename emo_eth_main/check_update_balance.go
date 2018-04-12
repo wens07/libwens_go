@@ -4,7 +4,7 @@
  * Copyright © 2015--2017 . All rights reserved.
  */
 
-package main
+package emo_eth_main
 
 import (
 	"fmt"
@@ -12,13 +12,13 @@ import (
 	"github.com/wens07/eth_lib"
 )
 
-func main() {
+func check_address_whether_update(num uint64) int {
 
 	mysql_conn_str_tmp := "wq:123456@tcp(192.168.1.123:3306)/ethAddrBalance?charset=utf8"
 	db := eth_lib.Connect_db(mysql_conn_str_tmp)
 	defer db.Close()
 
-	select_str := "SELECT addr from air_drop where LENGTH(balance) > 18"
+	select_str := "select addr from addr_balance where `check` = '0' limit " + fmt.Sprintf("%d", num)
 
 	fmt.Println(select_str)
 
@@ -29,14 +29,13 @@ func main() {
 	var index int = 0
 
 	for rows.Next() {
+		index++
 
 		if err := rows.Scan(&addr); err != nil {
 			eth_lib.CheckErr(err)
 		}
 
-		if err != nil {
-			eth_lib.CheckErr(err)
-		}
+		fmt.Println(addr)
 
 		//to do should get by blocknum
 		var block_num uint64 = 4730666
@@ -51,18 +50,36 @@ func main() {
 
 			newbalance := balance_int_string[:len(balance_int_string)-(precision-1)]
 
-			update_str := "update air_drop set balance = " + `"` + newbalance + `"` + " where addr = " + `"` + addr + `"`
+			insert_str := "insert ignore into air_drop (addr, balance) VALUES (" + `"` + addr + `"` + `, "` + newbalance + `"` + ")"
 
-			fmt.Println(update_str)
+			fmt.Println(insert_str)
 
-			_, err := db.Exec(update_str)
+			_, err := db.Exec(insert_str)
 			eth_lib.CheckErr(err)
 
 		}
 
-		index++
+		check := "1"
+		update_str := "update addr_balance set `check` = " + `"` + check + `"` + " where addr = " + `"` + addr + `"`
+		fmt.Println(update_str)
+
+		_, err := db.Exec(update_str)
+		eth_lib.CheckErr(err)
+
 	}
 
-	fmt.Println(index)
+	return index
+
+}
+
+func main() {
+
+	for {
+		numchecked := check_address_whether_update(1000)
+
+		if numchecked == 0 {
+			break
+		}
+	}
 
 }

@@ -4,21 +4,22 @@
  * Copyright © 2015--2017 . All rights reserved.
  */
 
-package main
+package emo_eth_main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/wens07/eth_lib"
 )
 
-func get_all_emo_of_biyinaddr(num int) int {
+func update_balance_allbit(num uint64) int {
 
-	biyin_mysql_conn_str := "wq:123456@tcp(192.168.1.123:3306)/ethAddrBalance?charset=utf8"
-	db := eth_lib.Connect_db(biyin_mysql_conn_str)
+	mysql_conn_str_tmp := "wq:123456@tcp(192.168.1.123:3306)/ethAddrBalance?charset=utf8"
+	db := eth_lib.Connect_db(mysql_conn_str_tmp)
 	defer db.Close()
 
-	select_str := "select addr from biyin_address where balance is null  limit " + fmt.Sprintf("%d", num)
+	select_str := "select addr from air_drop_allbalancebit where `check` is null  limit " + fmt.Sprintf("%d", num)
 
 	fmt.Println(select_str)
 
@@ -42,7 +43,7 @@ func get_all_emo_of_biyinaddr(num int) int {
 		balance := eth_lib.ETH_getBalance_by_block(addr, block_num)
 
 		check := "1"
-		update_str := "update biyin_address set `check` = " + `"` + check + `"` + " , balance = " + `"` + balance + `"` + " where addr = " + `"` + addr + `"`
+		update_str := "update air_drop_allbalancebit set `check` = " + `"` + check + `"` + " , balance = " + `"` + balance + `"` + " where addr = " + `"` + addr + `"`
 		fmt.Println(update_str)
 
 		_, err := db.Exec(update_str)
@@ -51,19 +52,22 @@ func get_all_emo_of_biyinaddr(num int) int {
 	}
 
 	return index
+
 }
 
 func main() {
 
+	//update_balance_allbit(3)
+
 	for {
 
-		res := get_all_emo_of_biyinaddr(1000)
-		fmt.Println("select num: ", res)
+		res := update_balance_allbit(1000)
+
+		time.Sleep(5 * time.Second)
 
 		if res < 1000 {
 			break
 		}
-
 	}
 
 }
