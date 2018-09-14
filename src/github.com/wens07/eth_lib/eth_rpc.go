@@ -2,6 +2,11 @@
  * Author: wengqiang (email: wens.wq@gmail.com  site: qiangweng.site)
  *
  * Copyright © 2015--2017 . All rights reserved.
+ *
+ * This library is free software under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3 of the License,
+ * or (at your option) any later version.
+ *
  */
 
 package eth_lib
@@ -18,9 +23,9 @@ import (
 	"github.com/parnurzeal/gorequest"
 )
 
-//const api_url string = "http://192.168.1.122:8588"
+const api_url string = "http://192.168.1.122:8588"
 
-const api_url string = "http://192.168.1.178:8546"
+//const api_url string = "http://192.168.1.178:8546"
 
 func Rpc_call(args ...string) *simplejson.Json {
 
@@ -122,6 +127,20 @@ func ETH_getTransactionByHash(trxhash string) (string, string) {
 	//fmt.Println(res_to)
 
 	return res_from, res_to
+}
+
+func ETH_getRawTransactionByHash(trxhash string) string {
+
+	callArgs := `["` + trxhash + `"]`
+
+	res := Rpc_call("eth_getRawTransactionByHash", callArgs).Get("result")
+	fmt.Println(res)
+
+	//fmt.Println(reflect.TypeOf(res))
+	//fmt.Println(res_from)
+	//fmt.Println(res_to)
+
+	return res.MustString()
 }
 
 func ETH_getBalance(addr string) string {

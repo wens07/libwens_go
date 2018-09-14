@@ -10,9 +10,7 @@
 
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
 
@@ -30,12 +28,13 @@ func main() {
 	//	fmt.Println(leetcode.Leetcode_countAndSay(i))
 	//}
 
-	var test string = "37 8"
+	//var test string = "37 8 98"
 	//var i int = 3
 	//
 	//fmt.Println(algorithm.Int2string(i))
 	//fmt.Println(test[1] - '0')
 	//fmt.Println(algorithm.Int2string(int(test[1])))
-	fmt.Println(test[2])
 
+	var a int = 0x12
+	fmt.Println(a)
 }
