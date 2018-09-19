@@ -12,7 +12,7 @@
  *
  */
 
-package secp256k1
+package bts2_secp256k1
 
 /*
 #cgo CFLAGS: -I./libsecp256k1

@@ -12,7 +12,7 @@
  *
  */
 
-package hx
+package bts2_hdwallet
 
 import (
 	"encoding/json"
