@@ -15,12 +15,14 @@
 package btc_lib
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcutil/base58"
+	"github.com/wens07/ecdsa_lib"
+	"github.com/wens07/util_lib/base58"
+	"github.com/wens07/util_lib/ripemd160"
 )
 
 const (
@@ -40,9 +42,9 @@ type AddressDetail struct {
 	Ck string `json:"checksum"`
 }
 
-func GetSecp256k1Params() *btcec.KoblitzCurve {
+func GetSecp256k1Params() *ecdsa_lib.KoblitzCurve {
 
-	return btcec.S256()
+	return ecdsa_lib.S256()
 
 }
 
@@ -67,4 +69,13 @@ func DecodeAddress(addr string) ([]byte, error) {
 
 	return jsonres, nil
 
+}
+
+func Address(version byte, pubkeybytes []byte) string {
+
+	h := sha256.Sum256(pubkeybytes)
+	rip160 := ripemd160.New()
+	rip160.Write(h[:])
+	res := rip160.Sum(nil)
+	return base58.CheckEncode(res, version)
 }

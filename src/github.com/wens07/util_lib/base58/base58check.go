@@ -12,7 +12,7 @@
  *
  */
 
-package util_lib
+package base58
 
 import (
 	"crypto/sha256"

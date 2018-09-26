@@ -37,13 +37,11 @@ version is used to differentiate the network of otherwise identical public keys
 which helps prevent using an address intended for one network on another.
 */
 
-package util_lib
+package base58
 
 import (
 	"math/big"
 )
-
-//go:generate go run genalphabet.go
 
 var bigRadix = big.NewInt(58)
 var bigZero = big.NewInt(0)

@@ -18,7 +18,10 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha256"
 	"math/big"
+
+	"github.com/wens07/util_lib/base58"
 )
 
 // PrivateKey wraps an ecdsa.PrivateKey as a convenience mainly for signing
@@ -75,6 +78,10 @@ func (p *PrivateKey) Sign(hash []byte) (*Signature, error) {
 // PrivKeyBytesLen defines the length in bytes of a serialized private key.
 const PrivKeyBytesLen = 32
 
+// compressMagic is the magic byte used to identify a WIF encoding for
+// an address created from a compressed serialized public key.
+const compressMagic byte = 0x01
+
 // Serialize returns the private key number d as a big-endian binary-encoded
 // number, padded to a length of 32 bytes.
 func (p *PrivateKey) Serialize() []byte {
@@ -82,6 +89,33 @@ func (p *PrivateKey) Serialize() []byte {
 	return paddedAppend(PrivKeyBytesLen, b, p.ToECDSA().D.Bytes())
 }
 
-func (p *PrivateKey) Wifstr() string {
+// Wif creates the Wallet Import Format string encoding of a WIF structure.
+// See DecodeWIF for a detailed breakdown of the format and requirements of
+// a valid WIF string.
+func Wif(key *PrivateKey, version byte, compressed bool) string {
+	// Precalculate size.  Maximum number of bytes before base58 encoding
+	// is one byte for the network, 32 bytes of private key, possibly one
+	// extra byte if the pubkey is to be compressed, and finally four
+	// bytes of checksum.
+	encodeLen := 1 + PrivKeyBytesLen + 4
 
+	if compressed {
+		encodeLen++
+	}
+
+	res := make([]byte, 0, encodeLen)
+
+	res = append(res, version)
+	res = paddedAppend(PrivKeyBytesLen, res, key.D.Bytes())
+	if compressed {
+		res = append(res, compressMagic)
+	}
+
+	//get checksum
+	first := sha256.Sum256(res)
+	second := sha256.Sum256(first[:])
+	chk := second[:4]
+
+	res = append(res, chk...)
+	return base58.Encode(res)
 }
