@@ -1,27 +1,30 @@
 /**
- * Author: wengqiang (email: wens.wq@gmail.com  site: qiangweng.site)
- *
- * Copyright © 2015--2018 . All rights reserved.
- *
- * File: serialize.go, Date: 2018-09-07
- *
- *
- * This library is free software under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3 of the License,
- * or (at your option) any later version.
- *
- */
+  * Author: wengqiang (email: wens.wq@gmail.com  site: qiangweng.site)
+  *  
+  * Copyright © 2015--2018 . All rights reserved.
+  *
+  * File: serialize.go 
+  * Date: 2018-09-07
+  *
+  */
 
-package bts2_hdwallet
+package bts
 
 import (
 	"encoding/binary"
+	"fmt"
+
+	"github.com/btcsuite/btcutil/base58"
 )
 
-// inferface for serialize hx transaction
-type HxSearilze interface {
+// inferface for serialize bts transaction
+type BtsSearilze interface {
+
 	Serialize() []byte
+
 }
+
+
 
 /**
  *  some basic type serialization function
@@ -80,6 +83,7 @@ type HxSearilze interface {
 //	return uint32_val, nil
 //}
 
+
 func PackUint16(val uint16, isLittleEndian bool) []byte {
 
 	res := make([]byte, 2)
@@ -87,8 +91,9 @@ func PackUint16(val uint16, isLittleEndian bool) []byte {
 	if isLittleEndian {
 		binary.LittleEndian.PutUint16(res, val)
 	} else {
-		binary.BigEndian.PutUint16(res, val)
+		binary.BigEndian.PutUint16(res,val)
 	}
+
 
 	return res
 
@@ -114,8 +119,9 @@ func PackUint32(val uint32, isLittleEndian bool) []byte {
 	if isLittleEndian {
 		binary.LittleEndian.PutUint32(res, val)
 	} else {
-		binary.BigEndian.PutUint32(res, val)
+		binary.BigEndian.PutUint32(res,val)
 	}
+
 
 	return res
 
@@ -160,12 +166,80 @@ func UnPackInt64(bytes []byte, isLittleEndian bool) int64 {
 	return res
 }
 
+func PackVarUint32(val uint32) []byte {
+
+	res := make([]byte, 0)
+
+	//one byte
+	if val < 0x80 {
+
+		res = append(res, byte(val))
+
+		return res
+	} else if val < 0x4000 { //two byte
+
+		byte1 := val / 0x80
+		byte2 := val % 0x80 + 0x80
+
+		res = append(res, byte(byte2))
+		res = append(res, byte(byte1))
+
+
+	} else if val < 0x200000 { //three byte
+
+		byte1 := val / 0x4000
+		byte2 := val % 0x4000 / 0x80 + 0x80
+		byte3 := val % 0x80 + 0x80
+
+		res = append(res, byte(byte3))
+		res = append(res, byte(byte2))
+		res = append(res, byte(byte1))
+
+	} else if val < 0x10000000 { //four byte
+
+		byte1 := val / 0x200000
+		byte2 := val % 0x200000 / 0x4000 + 0x80
+		byte3 := val % 0x4000 / 0x80 + 0x80
+		byte4 := val % 0x80 + 0x80
+
+		res = append(res, byte(byte4))
+		res = append(res, byte(byte3))
+		res = append(res, byte(byte2))
+		res = append(res, byte(byte1))
+	} else {
+
+		byte1 := val / 0x10000000
+		byte2 := val % 0x10000000 / 0x200000 + 0x80
+		byte3 := val % 0x200000 / 0x4000 + 0x80
+		byte4 := val % 0x4000 / 0x80 + 0x80
+		byte5 := val % 0x80 + 0x80
+
+		res = append(res, byte(byte5))
+		res = append(res, byte(byte4))
+		res = append(res, byte(byte3))
+		res = append(res, byte(byte2))
+		res = append(res, byte(byte1))
+
+	}
+
+
+	return res
+}
+
+
 func (asset *Asset) Serialize() []byte {
 
-	byte_int64 := PackInt64(asset.Hx_amount, true)
+	byte_int64 := PackInt64(asset.Bts_amount, true)
 
 	//byte for asset_id_type, default to zero
-	byte_int64 = append(byte_int64, byte(0))
+	if asset.Bts_asset_id == "1.3.0" {
+		byte_int64 = append(byte_int64, byte(0))
+	} else if asset.Bts_asset_id == "1.3.1" {
+		byte_int64 = append(byte_int64, byte(1))
+	} else if asset.Bts_asset_id == "1.3.2" {
+		byte_int64 = append(byte_int64, byte(2))
+	}
+
 
 	return byte_int64
 }
@@ -179,8 +253,16 @@ func (memo *Memo) Serialize() []byte {
 		//byte for optional, have element default to one
 		var res []byte
 		res = append(res, byte(1))
-		byte_pub := make([]byte, 74)
+		//for all null
+		//byte_pub := make([]byte, 74)
+		//res = append(res, byte_pub...)
+		byte_pub := make([]byte, 33)
 		res = append(res, byte_pub...)
+		pubbyte := base58.Decode(memo.Bts_to[3:])
+		res = append(res, pubbyte[:len(pubbyte) - 4]...)
+		byte_pub = make([]byte, 8)
+		res = append(res, byte_pub...)
+
 		// memo message
 		res = append(res, byte(len(memo.Message)+4))
 		byte_pub = make([]byte, 4)
@@ -192,21 +274,58 @@ func (memo *Memo) Serialize() []byte {
 
 }
 
-func (tranferOp *TransferOperation) Serialize() []byte {
+func (tranferOp  *NoMemoTransferOperation) Serialize() []byte {
 
-	res := tranferOp.Hx_fee.Serialize()
-	byteTmp := make([]byte, 3)
+	res := tranferOp.Bts_fee.Serialize()
+
+	id_from, err := GetAccountId(tranferOp.Bts_from)
+	if err != nil {
+		fmt.Println(err)
+		panic(id_from)
+	}
+	byte_uint32 := PackVarUint32(id_from)
+	res = append(res, byte_uint32...)
+	id_to, err := GetAccountId(tranferOp.Bts_to)
+	if err != nil {
+		fmt.Println(err)
+		panic(id_to)
+	}
+	byte_uint32 = PackVarUint32(id_to)
+	res = append(res, byte_uint32...)
+
+	byteTmp := tranferOp.Bts_amount.Serialize()
 	res = append(res, byteTmp...)
 
-	byteTmp, _ = GetAddressBytes(tranferOp.Hx_from_addr)
-	res = append(res, byteTmp...)
-	byteTmp, _ = GetAddressBytes(tranferOp.Hx_to_addr)
+	res = append(res, byte(0))
+	res = append(res, byte(0))
+
+	return res
+
+}
+
+func (tranferOp  *MemoTransferOperation) Serialize() []byte {
+
+	res := tranferOp.Bts_fee.Serialize()
+
+	id_from, err := GetAccountId(tranferOp.Bts_from)
+	if err != nil {
+		fmt.Println(err)
+		panic(id_from)
+	}
+	byte_uint32 := PackVarUint32(id_from)
+	res = append(res, byte_uint32...)
+	id_to, err := GetAccountId(tranferOp.Bts_to)
+	if err != nil {
+		fmt.Println(err)
+		panic(id_to)
+	}
+	byte_uint32 = PackVarUint32(id_to)
+	res = append(res, byte_uint32...)
+
+	byteTmp := tranferOp.Bts_amount.Serialize()
 	res = append(res, byteTmp...)
 
-	byteTmp = tranferOp.Hx_amount.Serialize()
-	res = append(res, byteTmp...)
-
-	byteTmp = tranferOp.Hx_memo.Serialize()
+	byteTmp = tranferOp.Bts_memo.Serialize()
 	res = append(res, byteTmp...)
 	res = append(res, byte(0))
 
@@ -214,27 +333,86 @@ func (tranferOp *TransferOperation) Serialize() []byte {
 
 }
 
-func (trx *TransferTransaction) Serialize() []byte {
+func (createOrderOp *LimitOrderCreateOperation) Serialize() []byte {
+
+	res := createOrderOp.Bts_fee.Serialize()
+
+	sell_id, err := GetAccountId(createOrderOp.Bts_seller)
+	if err != nil {
+		fmt.Println(err)
+		panic(sell_id)
+	}
+	byte_uint32 := PackVarUint32(sell_id)
+	res = append(res, byte_uint32...)
+
+	byteTmp := createOrderOp.Bts_amount_to_sell.Serialize()
+	res = append(res, byteTmp...)
+
+	byteTmp = createOrderOp.Bts_min_to_receive.Serialize()
+	res = append(res, byteTmp...)
+	res = append(res, byte(0))
+	res = append(res, byte(0))
+
+	return res
+}
+
+func (cancelOrderOp *LimitOrderCancelOperation) Serialize() []byte {
+
+	res := cancelOrderOp.Bts_fee.Serialize()
+
+	order_id, err := GetAccountId(cancelOrderOp.Bts_order)
+	if err != nil {
+		fmt.Println(err)
+		panic(order_id)
+	}
+	byte_uint32 := PackVarUint32(order_id)
+	res = append(res, byte_uint32...)
+
+	account_id, err := GetAccountId(cancelOrderOp.Bts_fee_paying_account)
+	if err != nil {
+		fmt.Println(err)
+		panic(account_id)
+	}
+	byte_uint32 = PackVarUint32(account_id)
+	res = append(res, byte_uint32...)
+	res = append(res, byte(0))
+
+	return res
+
+}
+
+
+func (trx  *Transaction) Serialize() []byte {
 
 	var res []byte
-	res = append(res, PackUint16(trx.Hx_ref_block_num, true)...)
-	res = append(res, PackUint32(trx.Hx_ref_block_prefix, true)...)
+	res = append(res, PackUint16(trx.Bts_ref_block_num, true)...)
+	res = append(res, PackUint32(trx.Bts_ref_block_prefix, true)...)
 	res = append(res, PackUint32(trx.Expiration, true)...)
 
 	//operations
 	res = append(res, byte(len(trx.Operations)))
 	res = append(res, byte(0))
 	for _, v := range trx.Operations {
-		res = append(res, v.Serialize()...)
+
+		if noMemo, ok := v.(NoMemoTransferOperation); ok {
+			res = append(res, noMemo.Serialize()...)
+		} else if  memo, ok := v.(MemoTransferOperation); ok{
+			res = append(res, memo.Serialize()...)
+		} else if createOrder, ok := v.(LimitOrderCreateOperation); ok {
+			res = append(res, createOrder.Serialize()...)
+		}
+
 	}
 
 	//extension
 	res = append(res, byte(0))
 
 	//signature
-	if len(trx.Hx_signatures) > 0 {
-		res = append(res, byte(len(trx.Hx_signatures)))
+	if len(trx.Bts_signatures) > 0 {
+		res = append(res, byte(len(trx.Bts_signatures)))
 	}
+
 
 	return res
 }
+

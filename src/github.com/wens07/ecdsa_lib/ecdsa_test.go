@@ -3,7 +3,7 @@
  *
  * Copyright © 2015--2018 . All rights reserved.
  *
- * File: address_test.go, Date: 2018-09-04
+ * File: ecdsa_test.go, Date: 2018-11-08
  *
  *
  * This library is free software under the terms of the GNU General Public License
@@ -12,20 +12,19 @@
  *
  */
 
-package bts2_hdwallet
+package ecdsa_lib
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestGetAddress(t *testing.T) {
+func TestWif(t *testing.T) {
 
-	seed := MnemonicToSeed("venture lazy digital aware plug hire acquire abuse chunk know gloom snow much employ glow rich exclude allow", "123")
-	addr, _ := GetAddress(seed, 0, 0)
-	wif, _ := ExportWif(seed, 0, 0)
+	priv, _ := Wif2Privkey("cT95wcAqftAUE5GQ9iB5AvaNDNoNrJXt1J82qWQsV3aSsFAoYvus", S256())
 
-	fmt.Println(addr)
-	fmt.Println(wif)
+	wif := Wif(priv, 239, true)
 
+	assert.Equal(t, "cT95wcAqftAUE5GQ9iB5AvaNDNoNrJXt1J82qWQsV3aSsFAoYvua", wif)
 }

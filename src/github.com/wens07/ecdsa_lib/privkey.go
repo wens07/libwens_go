@@ -119,3 +119,14 @@ func Wif(key *PrivateKey, version byte, compressed bool) string {
 	res = append(res, chk...)
 	return base58.Encode(res)
 }
+
+//
+// Wif string convert to ecdsa private key
+//
+func Wif2Privkey(wif string, curve elliptic.Curve) (*PrivateKey, *PublicKey) {
+
+	wifOriginByte := base58.Decode(wif)
+	privByte := wifOriginByte[1:33]
+
+	return PrivKeyFromBytes(S256(), privByte)
+}
