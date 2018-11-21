@@ -11,9 +11,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"libwens_go/util_lib"
 )
 
 ////#include <stdio.h>
@@ -24,22 +23,14 @@ import (
 ////
 //import "C"
 
-func TestVariableFunc(arg ...int) {
 
-	fmt.Printf("%T\n", arg)
-
-	for _, v := range arg {
-		fmt.Println(v)
-	}
-}
 
 func main() {
 
-	//TestVariableFunc(1, 2, 3
+	src := []byte{1, 2, 3, 4}
 
-	myscanner := bufio.NewScanner(os.Stdin)
+	out := util_lib.ReverseSlice(src)
 
-	for myscanner.Scan() {
-		fmt.Println(myscanner.Text())
-	}
+	fmt.Println(out)
+
 }
