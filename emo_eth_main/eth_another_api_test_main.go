@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wens07/eth_lib"
+	"libwens_go/eth_lib"
 )
 
 func main() {

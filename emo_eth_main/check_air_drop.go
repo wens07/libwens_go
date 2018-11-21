@@ -9,7 +9,7 @@ package emo_eth_main
 import (
 	"fmt"
 
-	"github.com/wens07/eth_lib"
+	"libwens_go/eth_lib"
 )
 
 func check_trx_whether_success(num uint64) int {

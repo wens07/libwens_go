@@ -6,7 +6,7 @@
 
 package emo_eth_main
 
-import "github.com/wens07/eth_lib"
+import "libwens_go/eth_lib"
 
 func main() {
 

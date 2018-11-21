@@ -11,10 +11,11 @@ import (
 	"log"
 	"os"
 
+	"libwens_go/eth_lib"
+
 	"github.com/bitly/go-simplejson"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/parnurzeal/gorequest"
-	"github.com/wens07/eth_lib"
 )
 
 const test_remote_api_url string = "http://192.168.1.178:8546"

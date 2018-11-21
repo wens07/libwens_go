@@ -9,7 +9,7 @@ package emo_eth_main
 import (
 	"fmt"
 
-	"github.com/wens07/libchange_name"
+	"libwens_go/libchange_name"
 )
 
 func main() {

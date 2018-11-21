@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/wens07/eth_lib"
+	"libwens_go/eth_lib"
 )
 
 func update_balance_allbit(num uint64) int {

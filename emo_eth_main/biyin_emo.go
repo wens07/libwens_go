@@ -9,7 +9,7 @@ package emo_eth_main
 import (
 	"fmt"
 
-	"github.com/wens07/eth_lib"
+	"libwens_go/eth_lib"
 )
 
 func get_all_emo_of_biyinaddr(num int) int {

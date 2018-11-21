@@ -9,7 +9,7 @@ package emo_eth_main
 import (
 	"fmt"
 
-	"github.com/wens07/eth_lib"
+	"libwens_go/eth_lib"
 )
 
 func check_address_whether_update(num uint64) int {
