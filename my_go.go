@@ -10,11 +10,6 @@
 
 package main
 
-import (
-	"fmt"
-	"libwens_go/util_lib"
-)
-
 ////#include <stdio.h>
 ////
 //// void my_c_print(char* s) {
@@ -23,14 +18,13 @@ import (
 ////
 //import "C"
 
-
+type Test struct {
+	i int
+}
 
 func main() {
 
-	src := []byte{1, 2, 3, 4}
-
-	out := util_lib.ReverseSlice(src)
-
-	fmt.Println(out)
-
+	// just for pause
+	//reader := bufio.NewReader(os.Stdin)
+	//reader.ReadString('\n')
 }

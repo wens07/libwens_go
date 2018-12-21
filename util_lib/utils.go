@@ -23,3 +23,22 @@ func ReverseSlice(slice []byte) []byte {
 
 	return slice
 }
+
+func Max_int(lh int, rh int) int {
+
+	if lh > rh {
+		return lh
+	} else {
+		return rh
+	}
+}
+
+func RotateSlice(slice []byte) []byte {
+
+	tmp := slice[0]
+	var i int
+
+	for i, slice[i] = range slice {}
+	slice[i] = tmp
+	return slice
+}

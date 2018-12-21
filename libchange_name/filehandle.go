@@ -16,120 +16,77 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"strings"
 )
 
-type FileHandle struct {
-}
+func IsFileExist(filename string) bool {
 
-func NewFileHandle() *FileHandle {
-	return &FileHandle{}
-}
-func checkFileIsExist(filename string) bool {
-	var exist = true
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		exist = false
+		return false
 	}
-	return exist
+	return true
 }
 
-func (fh *FileHandle) FileReplace(files []string, rps map[string]string) {
+func RenameFiles(files []string, rps map[string]string) {
+
 	for _, file := range files {
-		exist := checkFileIsExist(file)
+		exist := IsFileExist(file)
 		if !exist {
-			fmt.Println(file)
+			fmt.Println("file not exist: ", file)
 			continue
 		}
 
-		readfile, rerr := os.OpenFile(file, os.O_RDWR, 0666)
-		writefile, werr := os.OpenFile(file+"_temp", os.O_CREATE|os.O_RDWR, 0666)
-		if rerr != nil || werr != nil {
-			fmt.Println(file)
-			fmt.Println(rerr.Error(), werr.Error())
+		readFile, rErr := os.OpenFile(file, os.O_RDWR, 0666)
+		writeFile, wErr := os.OpenFile(file+"_temp", os.O_CREATE|os.O_RDWR, 0666)
+		if rErr != nil || wErr != nil {
+			fmt.Println("replace file error: ", file, rErr.Error(), wErr.Error())
 			continue
 		}
-		rd := bufio.NewReader(readfile)
-		wd := bufio.NewWriter(writefile)
-		//CMakeList := path.Ext(file) == ".txt" && (strings.Contains(file,"CMakeList"))
+
+		rd := bufio.NewReader(readFile)
+		wd := bufio.NewWriter(writeFile)
+
 		for {
-			if path.Ext(file) == ".txt" && !(strings.Contains(file, "CMakeList")) {
-				break
-			}
-			line, _, err := rd.ReadLine() //以'\n'为结束符读入一行
 
-			if err != nil || io.EOF == err {
-				break
+			line, err := rd.ReadBytes('\n')
+
+			if err != nil && err != io.EOF {
+				panic("rename file error!")
 			}
+
 			for old, new := range rps {
 				line = []byte(strings.Replace(string(line), old, new, -1))
 			}
-			wd.WriteString(string(line) + "\n")
+
+			wd.Write(line)
 			wd.Flush()
-			//fmt.Println("otherline",string(line))
-		}
-		readfile.Close()
-		err := os.Remove(file)
-		if err != nil {
-			fmt.Println(file)
-			fmt.Println(err.Error())
-			continue
-		}
-		writefile.Close()
-		os.Rename(file+"_temp", file)
-		if err != nil {
-			fmt.Println(file)
-			fmt.Println(err.Error())
-			continue
-		}
-	}
-}
 
-func (fh *FileHandle) PathNameReplace(files []string, rps map[string]string) {
-	for _, file := range files {
-		exist := checkFileIsExist(file)
-		if !exist {
-			fmt.Printf("file (%s) not exists!\n", file)
-			continue
-		}
-
-		index := strings.LastIndex(file, "\\")
-		dirstr := file[0:index]
-		//tmpolddir := dirstr
-
-		for old, new := range rps {
-			if strings.Contains(dirstr, old) {
-				dirstr = strings.Replace(dirstr, old, new, -1)
-
-				err := os.MkdirAll(dirstr, os.ModeDir)
-				//err := os.Rename(tmpolddir, dirstr)
-
-				if err != nil {
-					fmt.Printf("mkdir  (%s) error!\n", dirstr)
-					fmt.Println(err.Error())
-					continue
-				}
-
+			if io.EOF == err {
+				break
 			}
 
 		}
 
-	}
+		readFile.Close()
+		os.Remove(file)
 
+		writeFile.Close()
+		os.Rename(file+"_temp", file)
+
+	}
 }
 
-func (fh *FileHandle) FileNameReplace(files []string, rps map[string]string) []string {
+func RenameFileName(files []string, rps map[string]string) []string {
 
 	res := files
-
 	for _, file := range files {
-		exist := checkFileIsExist(file)
+		exist := IsFileExist(file)
 		if !exist {
-			fmt.Printf("file (%s) not exists!\n", file)
+			fmt.Println("file not exist: ", file)
 			continue
 		}
 
-		oldfile := file
+		oldFile := file
 
 		for old, new := range rps {
 			if strings.Contains(file, old) {
@@ -138,7 +95,7 @@ func (fh *FileHandle) FileNameReplace(files []string, rps map[string]string) []s
 
 		}
 
-		err := os.Rename(oldfile, file)
+		err := os.Rename(oldFile, file)
 		if err != nil {
 			fmt.Printf("rename file (%s) error!\n", file)
 			fmt.Println(err.Error())
@@ -147,32 +104,4 @@ func (fh *FileHandle) FileNameReplace(files []string, rps map[string]string) []s
 	}
 
 	return res
-}
-
-func (fh *FileHandle) PathClear(files []string, rps map[string]string) {
-
-	for _, file := range files {
-
-		index := strings.LastIndex(file, "\\")
-		dirstr := file[0:index]
-
-		for old, _ := range rps {
-			if strings.Contains(dirstr, old) {
-				index = strings.Index(file, old)
-				dirstr = file[0 : index+len(old)]
-
-				//fmt.Println(dirstr)
-				err := os.RemoveAll(dirstr)
-
-				if err != nil {
-					fmt.Printf("rmdir  (%s) error!\n", dirstr)
-					fmt.Println(err.Error())
-					continue
-				}
-
-			}
-
-		}
-
-	}
 }

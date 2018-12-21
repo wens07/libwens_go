@@ -42,3 +42,18 @@ func Is_alphanumeric(src string) bool {
 	return reg.MatchString(src)
 
 }
+
+func Sqrt(n int) (res float32) {
+
+	if n >= 1 {
+		res = float32(n)
+	} else {
+		res = 1
+	}
+
+	for res*res-float32(n) > 1e-8 {
+		res = 0.5 * (res + float32(n)/res)
+	}
+
+	return
+}

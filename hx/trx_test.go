@@ -142,8 +142,8 @@ func TestTransaction(t *testing.T) {
 	//fmt.Printf("ref block num is %d\n", ref_block_num)
 	//fmt.Printf("ref block prefix is %d\n", ref_block_prefix)
 
-	//out, err := BuildBindAccountTransaction("6413,2521010061", "5KbxwmcNhUQe7oVN5oMpC3BiYmGpNDf8u3W1EPn3qzfrGxVahyq", "HXNRhTbDKiw2ut91BJEc5zy49HKWQnRw9as7", 0, "TshDfDSPRhV2BCDAJFAGAjs5K2TJGfrCPua",
-	//	"HC", "PtWVJdsvDGYsidC9igf6h2KRBFCdUb7k6Phx9DoZPeXzHirhL2yAM", "", "9f3b24c962226c1cb775144e73ba7bb177f9ed0b72fac69cd38764093ab530bd")
+	out, err := BuildBindAccountTransaction("29629,937539137", "5Kk752U9tkHSr9xGeoqnNKkwCjZFNGUXBnBt2b1LWt9YZtgwbaG", "HXNZvVPx9A6rSKttoGWyC3DFovwkRa1Dkb2A", 0, "0x54c81ce793bfe493091074092b17e7e37d630460",
+		"ETH", "22081b068c6a011d70976041974e4931628fa890aa0ab0d0b61661e985b8b8df", "", "2e13ba07b457f2e284dcfcbd3d4a3e4d78a6ed89a61006cdb7fdad6d67ef0b12")
 
 	//BuildUnBindAccountTransaction("6413,2521010061", "5KbxwmcNhUQe7oVN5oMpC3BiYmGpNDf8u3W1EPn3qzfrGxVahyq","HXNRhTbDKiw2ut91BJEc5zy49HKWQnRw9as7", 0, "TshDfDSPRhV2BCDAJFAGAjs5K2TJGfrCPua",
 	//	"HC", "PtWVJdsvDGYsidC9igf6h2KRBFCdUb7k6Phx9DoZPeXzHirhL2yAM", "9f3b24c962226c1cb775144e73ba7bb177f9ed0b72fac69cd38764093ab530bd")
@@ -156,8 +156,8 @@ func TestTransaction(t *testing.T) {
 	//out, err := BuildLockBalanceTransaction("33081,1272682105", "5KR6ocp5eUdWWYPX7mYp4XLGBcZ2xHVHVsNaco6K2YZSWQTqES7", "HXNcikaxB2rsK26JCiwvzse9AqFPkBGyAynG", "1.2.60", "1.3.0", 100000, 0,
 	//	"1.6.11", "InvalidAddress", "07c870b857439cc298de0f7747d475c57320ddfdd6f28357f7bed2a7ff41e821")
 
-	out, err := BuildRedeemBalanceTransaction("59990,2111459066", "5KR6ocp5eUdWWYPX7mYp4XLGBcZ2xHVHVsNaco6K2YZSWQTqES7", "HXNcikaxB2rsK26JCiwvzse9AqFPkBGyAynG", "1.2.60", "1.3.0", 200000, 0,
-		"1.6.13", "InvalidAddress", "07c870b857439cc298de0f7747d475c57320ddfdd6f28357f7bed2a7ff41e821")
+	//out, err := BuildRedeemBalanceTransaction("59990,2111459066", "5KR6ocp5eUdWWYPX7mYp4XLGBcZ2xHVHVsNaco6K2YZSWQTqES7", "HXNcikaxB2rsK26JCiwvzse9AqFPkBGyAynG", "1.2.60", "1.3.0", 200000, 0,
+	//	"1.6.13", "InvalidAddress", "07c870b857439cc298de0f7747d475c57320ddfdd6f28357f7bed2a7ff41e821")
 
 	//asset_arr := []string{"citizen10,54459861,1.3.0", "citizen9,39886,1.3.0"}
 	//out, err := BuildObtainPaybackTransaction("5595,4227186882", "5KbxwmcNhUQe7oVN5oMpC3BiYmGpNDf8u3W1EPn3qzfrGxVahyq", "HXNRhTbDKiw2ut91BJEc5zy49HKWQnRw9as7", 200, asset_arr,

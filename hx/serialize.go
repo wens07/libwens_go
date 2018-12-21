@@ -221,15 +221,13 @@ func (asset *Asset) Serialize() []byte {
 	byte_int64 := PackInt64(asset.Hx_amount, true)
 
 	//byte for asset_id_type, default to zero
-	if asset.Hx_asset_id == "1.3.0" {
-		byte_int64 = append(byte_int64, byte(0))
-	} else if asset.Hx_asset_id == "1.3.1" {
-		byte_int64 = append(byte_int64, byte(1))
-	} else if asset.Hx_asset_id == "1.3.2" {
-		byte_int64 = append(byte_int64, byte(2))
-	} else if asset.Hx_asset_id == "1.3.3" {
-		byte_int64 = append(byte_int64, byte(3))
+	tmp_id, err := GetId(asset.Hx_asset_id)
+	if err != nil {
+		fmt.Println(err)
+		panic(tmp_id)
 	}
+	byte_uint32 := PackVarUint32(tmp_id)
+	byte_int64 = append(byte_int64, byte_uint32...)
 
 	return byte_int64
 }
@@ -334,7 +332,9 @@ func (bindOp *AccountBindOperation) Serialize() []byte {
 	res = append(res, tmpByte...)
 	res = append(res, byte(len(bindOp.Hx_tunnel_address)))
 	res = append(res, []byte(bindOp.Hx_tunnel_address)...)
-	res = append(res, byte(len(bindOp.Hx_tunnel_signature)))
+
+	tmpByte = PackVarUint32(uint32(len(bindOp.Hx_tunnel_signature)))
+	res = append(res, tmpByte...)
 	res = append(res, []byte(bindOp.Hx_tunnel_signature)...)
 
 	if bindOp.Hx_guarantee_id != "" {
@@ -365,7 +365,8 @@ func (unbindOp *AccountUnBindOperation) Serialize() []byte {
 	res = append(res, tmpByte...)
 	res = append(res, byte(len(unbindOp.Hx_tunnel_address)))
 	res = append(res, []byte(unbindOp.Hx_tunnel_address)...)
-	res = append(res, byte(len(unbindOp.Hx_tunnel_signature)))
+	tmpByte = PackVarUint32(uint32(len(unbindOp.Hx_tunnel_signature)))
+	res = append(res, tmpByte...)
 	res = append(res, []byte(unbindOp.Hx_tunnel_signature)...)
 
 	res = append(res, byte(0))
@@ -386,15 +387,13 @@ func (withdraw *WithdrawCrosschainOperation) Serialize() []byte {
 	res = append(res, []byte(withdraw.Hx_asset_symbol)...)
 
 	//byte for asset_id_type, default to zero
-	if withdraw.Hx_asset_id == "1.3.0" {
-		res = append(res, byte(0))
-	} else if withdraw.Hx_asset_id == "1.3.1" {
-		res = append(res, byte(1))
-	} else if withdraw.Hx_asset_id == "1.3.2" {
-		res = append(res, byte(2))
-	} else if withdraw.Hx_asset_id == "1.3.3" {
-		res = append(res, byte(3))
+	tmp_id, err := GetId(withdraw.Hx_asset_id)
+	if err != nil {
+		fmt.Println(err)
+		panic(tmp_id)
 	}
+	byte_uint32 := PackVarUint32(tmp_id)
+	res = append(res, byte_uint32...)
 
 	res = append(res, byte(len(withdraw.Hx_crosschain_account)))
 	res = append(res, []byte(withdraw.Hx_crosschain_account)...)

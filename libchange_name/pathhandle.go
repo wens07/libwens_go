@@ -15,30 +15,27 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-type PathFinder struct {
-}
+func GetFilesInPath(path string) []string {
 
-func NewPathFinder() *PathFinder {
-	return &PathFinder{}
-}
-
-func (p *PathFinder) PathFile(path string) []string {
 	files := make([]string, 0)
-	err := filepath.Walk(path, func(path string, finfo os.FileInfo, err error) error {
-		if finfo == nil {
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		fmt.Println(path)
+
+		if info == nil {
 			return err
 		}
-		if finfo.IsDir() {
-			if filepath.HasPrefix(finfo.Name(), ".") {
+		if info.IsDir() {
+			if strings.HasPrefix(info.Name(), ".") {
 				return filepath.SkipDir
 			}
 
 			return nil
 		}
 
-		if filepath.HasPrefix(filepath.Base(path), ".") {
+		if strings.HasPrefix(filepath.Base(path), ".") {
 			return nil
 		}
 

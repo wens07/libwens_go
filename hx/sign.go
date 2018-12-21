@@ -7,6 +7,8 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"strings"
+
 	"github.com/HcashOrg/hcd/chaincfg/chainhash"
 	"github.com/HcashOrg/hcd/hcec/secp256k1"
 	"github.com/HcashOrg/hcd/hcutil"
@@ -16,17 +18,23 @@ import (
 )
 
 const (
-	CoinHC  = "HC"
-	CoinBTC = "BTC"
-	CoinLTC = "LTC"
-	CoinETH = "eth"
+	CoinHC     = "HC"
+	CoinBTC    = "BTC"
+	CoinLTC    = "LTC"
+	CoinETH    = "ETH"
+	CoinPAX    = "PAX"
+	CoinERCPAX = "ERCPAX"
 )
 
 var (
-	ethSigSuffix0     = "25"
-	ethSigSuffix1     = "26"
-	ethSigSuffixByte0 = byte(0x25)
-	ethSigSuffixByte1 = byte(0x26)
+	//ethSigSuffix0     = "25"
+	//ethSigSuffix1     = "26"
+	//ethSigSuffixByte0 = byte(0x25)
+	//ethSigSuffixByte1 = byte(0x26)
+	ethSigSuffix0     = "1b"
+	ethSigSuffix1     = "1c"
+	ethSigSuffixByte0 = byte(0x1b)
+	ethSigSuffixByte1 = byte(0x1c)
 )
 
 func SetTestnetEthSig() {
@@ -47,9 +55,15 @@ func SignAddress(wif, address, coin string) (string, error) {
 		return btcSignAddress(wif, address)
 
 	case CoinLTC:
-		return btcSignAddress(wif, address)
+		return ltcSignAddress(wif, address)
 
 	case CoinETH:
+		fallthrough
+	case CoinPAX:
+		fallthrough
+	case CoinERCPAX:
+		return ethSignAddress2(wif, address)
+	default:
 		return ethSignAddress2(wif, address)
 	}
 
@@ -105,6 +119,11 @@ func Sign2(wif string, msg []byte) (sig []byte, err error) {
 
 // use bts sign
 func ethSignAddress2(wif, addr string) (data string, err error) {
+	addr = strings.ToLower(addr)
+	if strings.HasPrefix(addr, "0x") {
+		addr = addr[2:]
+	}
+
 	baddr, _ := hex.DecodeString(addr)
 	msg := fmt.Sprintf("\x19Ethereum Signed Message:\n%d", len(baddr))
 
@@ -115,8 +134,11 @@ func ethSignAddress2(wif, addr string) (data string, err error) {
 	v := sig[0] - 27
 	copy(sig, sig[1:])
 
+	// 测试链 00 -> 1b   01 -> 1c
+	// 正式链 00 -> 25   01 -> 26
 	if v == byte(0) {
 		sig[64] = ethSigSuffixByte0
+
 		// res = res[0:len(res)-2] + "1b"
 	} else {
 		sig[64] = ethSigSuffixByte1

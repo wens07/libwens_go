@@ -294,7 +294,11 @@ func ImportWif(wifstr string) (*btcec.PrivateKey, error) {
 
 func IsCanonical(sig []byte) bool {
 
-	tmp := (sig[1]&0x80 != 0) || (sig[1] == 0x0 && (sig[2]&0x80 != 0)) || (sig[33]&0x80 != 0) || (sig[33] == 0x0 && (sig[34]&0x80 != 0))
+	tmp := !(sig[1] & 0x80 != 0) &&
+		!(sig[1] == 0 && !(sig[2] & 0x80 != 0)) &&
+		!(sig[33] & 0x80 != 0) &&
+		!(sig[33] == 0 && !(sig[34] & 0x80 != 0))
 
-	return !tmp
+
+	return tmp
 }

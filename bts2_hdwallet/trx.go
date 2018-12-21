@@ -16,12 +16,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"libwens_go/bts2_secp256k1"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-
-	bts "anybit.io/spv/bts2_secp256k1"
 )
 
 /*const (
@@ -150,12 +149,12 @@ func GetSignature(wif string, hash []byte) ([]byte, error) {
 	fmt.Println("the compressed pubkey is: ", hex.EncodeToString(ecPrivkey.PubKey().SerializeCompressed()))
 
 	for {
-		sig, err := bts.SignCompact(hash, ecPrivkeyByte, true)
+		sig, err := bts2_secp256k1.SignCompact(hash, ecPrivkeyByte, true)
 		if err != nil {
 			return nil, fmt.Errorf("in GetSignature function, sign compact failed: %v", err)
 		}
 
-		pubkey_byte, err := bts.RecoverPubkey(hash, sig, true)
+		pubkey_byte, err := bts2_secp256k1.RecoverPubkey(hash, sig, true)
 		if err != nil {
 			return nil, fmt.Errorf("in GetSignature function, sign compact failed: %v", err)
 		}
